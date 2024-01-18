@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require "http"
-require "pdfservices/jwt_provider"
 require "pdfservices/base/operation"
 require "pdfservices/document_merge/result"
-require "yaml"
 
 module PdfServices
   module DocumentMerge
@@ -27,13 +24,21 @@ module PdfServices
         })
         if response.status == 201
           document_url = response.headers["location"]
-          poll_document_result(document_url, asset_id)
+          poll_document_result(document_url, asset_id) do |response|
+            handle_response(response)
+          end
         else
-          Result.new(nil, "Unexpected response status from document merge endpoint: #{response.status}\nasset_id: #{asset_id}")
+          result_class.new(nil, "Unexpected response status from document merge endpoint: #{response.status}\nasset_id: #{asset_id}")
         end
       end
 
       private
+
+      def handle_response(response)
+        # download_the_asset
+        download_uri = HTTP.get(response["asset"]["downloadUri"])
+        result_class.new(download_uri.body, nil)
+      end
 
       def result_class
         Result

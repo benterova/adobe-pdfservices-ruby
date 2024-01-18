@@ -9,6 +9,11 @@ module PdfServices
     class Operation
       PRESIGNED_URL_ENDPOINT = "https://pdf-services.adobe.io/assets"
       ASSETS_ENDPOINT = "https://pdf-services.adobe.io/assets"
+      module Status
+        IN_PROGRESS = "in progress"
+        DONE = "done"
+        FAILED = "failed"
+      end
 
       def initialize(credentials = nil)
         @credentials = credentials
@@ -31,6 +36,9 @@ module PdfServices
         api.delete("#{ASSETS_ENDPOINT}/#{asset_id}")
       end
 
+      # Generates a presigned URL for the operation.
+      #
+      # @return [String] The presigned URL.
       def presigned_url
         response = api.post(PRESIGNED_URL_ENDPOINT, json: {mediaType: "application/pdf"})
         if response.status == 200
@@ -54,27 +62,33 @@ module PdfServices
         @api ||= HTTP.headers(api_headers)
       end
 
-      def poll_document_result(url, original_asset_id)
-        sleep(1)
+      #
+      # Polls the document result by making GET requests to the specified URL until the status is either
+      # "DONE" or "FAILED". Deletes the original asset and the resulting asset after processing is complete.
+      #
+      # @param url [String] The URL to poll for the document result.
+      # @param original_asset_id [String, nil] The ID of the original asset to delete.
+      # @yield [json_response] Optional block to process the JSON response when the status is "DONE".
+      # @return [Result] A Result object with the appropriate error message if the operation fails.
+      def poll_document_result(url, original_asset_id, &block)
         response = api.get(url)
         if response.status == 200
           json_response = JSON.parse(response.body.to_s)
-          ocr_asset_id = json_response&.[]("asset")&.[]("assetID")
+          asset_id = json_response&.[]("asset")&.[]("assetID")
           case json_response["status"]
-          when "in progress"
-            poll_document_result(url, original_asset_id)
-          when "done"
-            # download_the_asset
-            response = HTTP.get(json_response["asset"]["downloadUri"])
+          when Status::IN_PROGRESS
+            sleep(1)
+            poll_document_result(url, original_asset_id, &block)
+          when Status::DONE
+            result = yield(json_response) if block
             # delete the assets
             delete_the_asset(original_asset_id) if !original_asset_id.nil?
-            delete_the_asset(ocr_asset_id) if !ocr_asset_id.nil?
-            # return the result
-            result_class.new(response.body, nil)
-          when "failed"
+            delete_the_asset(asset_id) if !asset_id.nil?
+            result
+          when Status::FAILED
             # delete the original asset
             delete_the_asset(original_asset_id) if !original_asset_id.nil?
-            result_class.new(nil, "OCR Failed")
+            result_class.new(nil, "Operation Failed")
           else
             # delete the original asset
             delete_the_asset(original_asset_id) if original_asset_id.present?
