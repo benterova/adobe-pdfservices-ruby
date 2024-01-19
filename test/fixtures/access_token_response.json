@@ -1,0 +1,5 @@
+{
+    "access_token": "fake1.fake2.fake3",
+    "token_type": "Bearer",
+    "expires_in": "3600"
+}

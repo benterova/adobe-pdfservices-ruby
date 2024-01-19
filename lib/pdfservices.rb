@@ -1,29 +1,44 @@
 # frozen_string_literal: true
 
-require "http"
-require "json"
-require "jwt"
-require "multipart_parser/reader"
-require "yaml"
-require "pdfservices/version"
+require 'http'
+require 'json'
+require 'multipart_parser/reader'
+require 'yaml'
+
+# Client and API
+require_relative 'pdfservices/client'
+require_relative 'pdfservices/api'
+
+# Document Merge
+require_relative 'pdfservices/document_merge/operation'
+require_relative 'pdfservices/document_merge/result'
+
+# OCR
+require_relative 'pdfservices/ocr/operation'
+require_relative 'pdfservices/ocr/result'
+
+# HTML to PDF
+require_relative 'pdfservices/html_to_pdf/operation'
+require_relative 'pdfservices/html_to_pdf/result'
+
+# Extract PDF
+require_relative 'pdfservices/extract_pdf/operation'
+require_relative 'pdfservices/extract_pdf/result'
+
+# Base
+require_relative 'pdfservices/base/operation'
+require_relative 'pdfservices/base/result'
 
 module PdfServices
-  autoload :CredentialsBuilder, "pdfservices/credentials_builder"
-  autoload :Credentials, "pdfservices/credentials"
-  autoload :JwtProvider, "pdfservices/jwt_provider"
+  attr_reader :api
 
-  module DocumentMerge
-    autoload :Operation, "pdfservices/document_merge/operation"
-    autoload :Result, "pdfservices/document_merge/result"
-  end
+  include Ocr::Operation
+  include HtmlToPdf::Operation
+  include DocumentMerge::Operation
+  include ExtractPdf::Operation
 
-  module Ocr
-    autoload :Operation, "pdfservices/ocr/operation"
-    autoload :Result, "pdfservices/ocr/result"
-  end
-
-  module HtmlToPdf
-    autoload :Operation, "pdfservices/html_to_pdf/operation"
-    autoload :Result, "pdfservices/html_to_pdf/result"
+  def initialize(credentials = nil)
+    @client = Client.new(credentials[:client_id], credentials[:client_secret])
+    @api = Api.new(@client)
   end
 end

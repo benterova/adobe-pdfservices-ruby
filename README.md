@@ -1,39 +1,45 @@
-# PDF Services SDK for Ruby
+# PDF Services for Ruby
+### Originally forked from [Adobe Document Services PDF Tools SDK for Ruby](https://github.com/arpc/pdfservices-ruby-sdk)
 
 An Adobe PDF Services Ruby SDK provides APIs for creating, combining, exporting and manipulating PDFs.
 
 ## Installation
 
-To use the gem in your project Gemfile:
-1. Generate an OAuth token for GitHub
-2. Add the token as an environment variable:
-```terminal
-$ export BUNDLE_GITHUB__COM=your_token
-```
 
 3. Add the gem to your gemfile:
 ```terminal
-gem "pdfservices", git: "https://github.com/arpc/pdfservices-ruby-sdk.git'
+gem "adobe_pdfservices", git: "https://github.com/benterova/adobe-pdfservices-ruby.git"
 ```
 
 ## Usage
 
-In order to user this SDK, you will need to register for and Adobe developer account which will result in you recieving a private key.
-Then you need to create a json file with your credentials:
-```json
-{
-  "client_credentials": {
-    "client_id": "123someclientid",
-    "client_secret": "123-somesecret!"
-  },
-  "service_account_credentials": {
-    "organization_id": "123@AdobeOrg",
-    "account_id": "456@techacct.adobe.com",
-    "private_key_file": "path-tp-your/private.key"
-  }
+In order to user this gem, you will need to register for and Adobe developer account which will result in you recieving a client ID and secret.
+
+You can then initialize a client with the following code:
+```ruby
+credentials = {
+  PDF_SERVICES_CLIENT_ID: 'your_client_id',
+  PDF_SERVICES_CLIENT_SECRET: 'your_client_secret',
+  PDF_SERVICES_ORGANIZATION_ID: 'your_organization_id',
 }
 
+client = PdfServices.new(credentials)
+
 ```
+After initializing the client, you can make API calls using the client object, like:
+
+```ruby
+# Merge documents
+file_to_merge_into = File.join(File.dirname(__FILE__), 'data', 'merge_into.docx')
+json_data_to_merge = {message: "Hello World!"}.to_json
+output_format = 'pdf'
+
+
+
+```
+
+
+
 ### Supported API calls:
 
 - Document merge. See `test/pdf_services_sdk/test_document_merge.rb` for an example usage.

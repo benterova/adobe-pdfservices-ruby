@@ -1,48 +1,67 @@
-require "pdfservices/extract_pdf/result"
-
 module PdfServices
   module ExtractPdf
     class Operation < Base::Operation
-      OPERATION_ENDPOINT = "https://pdf-services.adobe.io/operation/extractpdf"
+      OPERATION_ENDPOINT = 'https://pdf-services.adobe.io/operation/extractpdf'.freeze
       VALID_ELEMENTS = %w[tables text].freeze
       TABLE_OUTPUT_FORMATS = %w[csv xlsx].freeze
       RENDITIONS_EXTRACTS = %w[tables figures].freeze
 
-      def initialize(credentials = nil, source_pdf = nil)
-        super(credentials)
-        @source_pdf = source_pdf
-      end
-
       # See https://developer.adobe.com/document-services/docs/apis/#tag/Extract-PDF/operation/pdfoperations.extractpdf
 
-      def execute(renditions_to_extract:, table_output_format:, include_styling: false, extract_elements: VALID_ELEMENTS, get_char_bounds: false)
-        raise ArgumentError, "Invalid extract_elements: #{extract_elements - VALID_ELEMENTS}" unless (extract_elements - VALID_ELEMENTS).empty?
+      def extract_pdf(source_pdf = nil, options = {})
+        validate_options(options)
 
-        asset_id = upload_asset(@source_pdf)
+        include_styling = options[:include_styling] || false
+        get_char_bounds = options[:get_char_bounds] || false
+
+        asset_id = upload_asset(source_pdf)
         response = api.post(OPERATION_ENDPOINT, json: {
-          assetID: asset_id,
-          includeStyling: include_styling,
-          getCharBounds: get_char_bounds,
-          renditions: renditions_to_extract,
-          tableOutputFormat: table_output_format,
-          extractElements: extract_elements
-        })
+                              assetID: asset_id,
+                              includeStyling: include_styling,
+                              getCharBounds: get_char_bounds,
+                              renditions: options[:renditions_to_extract],
+                              tableOutputFormat: options[:table_output_format],
+                              extractElements: options[:extract_elements]
+                            })
 
-        if response.status == 201
-          document_url = response.headers["location"]
-          poll_document_result(document_url, asset_id) do |response|
-            handle_response(response)
-          end
-        else
-          result_class.new(nil, "Unexpected response status from extract pdf endpoint: #{response.status}\nasset_id: #{asset_id}")
-        end
+        handle_extract_pdf_response(response, asset_id)
       end
 
       private
 
+      def handle_extract_pdf_response(response, asset_id)
+        if response.status == 201
+          document_url = response.headers['location']
+          poll_document_result(document_url, asset_id) do |response|
+            handle_response(response)
+          end
+        else
+          result_class.new(nil,
+                           "Unexpected response status from extract pdf endpoint: #{response.status}\nasset_id: #{asset_id}")
+        end
+      end
+
+      def validate_options(options)
+        renditions_to_extract = options[:renditions_to_extract] || []
+        table_output_format = options[:table_output_format] || TABLE_OUTPUT_FORMATS.first
+        extract_elements = options[:extract_elements] || VALID_ELEMENTS
+
+        unless (renditions_to_extract - RENDITIONS_EXTRACTS).empty?
+          raise ArgumentError,
+                "Invalid renditions_to_extract: #{renditions_to_extract}"
+        end
+        unless TABLE_OUTPUT_FORMATS.include?(table_output_format)
+          raise ArgumentError,
+                "Invalid table_output_format: #{table_output_format}"
+        end
+        return if (extract_elements - VALID_ELEMENTS).empty?
+
+        raise ArgumentError,
+              "Invalid extract_elements: #{extract_elements - VALID_ELEMENTS}"
+      end
+
       def handle_response(response)
-        download_uri = HTTP.get(response["content"]["downloadUri"])
-        result_class.new(download_uri.body, nil)
+        result_class.new(JSON.parse(response.body)['content'], nil)
       end
 
       def result_class

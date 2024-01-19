@@ -3,22 +3,22 @@
 require_relative "lib/pdfservices/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "pdfservices"
+  spec.name = "adobe_pdfservices"
   spec.version = PdfServices::VERSION
-  spec.authors = ["Jimmy Bosse"]
-  spec.email = ["jimmy.bosse@ankura.com"]
+  spec.authors = ["Jimmy Bosse", "Ben Terova"]
+  spec.email = ["jimmy.bosse@ankura.com", "ben@benterova.com"]
 
-  spec.summary = "An Adobe PDF Services Ruby SDK."
+  spec.summary = "Adobe PDF Services Ruby"
   spec.description = "An Adobe PDF Services Ruby SDK provides APIs for creating, combining, exporting and manipulating PDFs."
-  spec.homepage = "https://github.com/ARPC/PdfServices-ruby-sdk/blob/main/README.md"
+  spec.homepage = "https://github.com/benterova/adobe-pdfservices-ruby/blob/main/README.md"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = ">= 3.2.2"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/ARPC/PdfServices-ruby-sdk"
-  spec.metadata["changelog_uri"] = "https://github.com/ARPC/PdfServices-ruby-sdk/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/benterova/adobe-pdfservices-ruby"
+  spec.metadata["changelog_uri"] = "https://github.com/benterova/adobe-pdfservices-ruby/blob/main/CHANGELOG.md"
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

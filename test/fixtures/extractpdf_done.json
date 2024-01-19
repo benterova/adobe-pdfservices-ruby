@@ -1,0 +1,19 @@
+{
+  "status": "done",
+  "content": {
+    "assetID": "extracted:asset-id",
+    "downloadUri": "https://extracted.file.url",
+    "metadata": {
+      "size": 123456,
+      "mimeType": "application/json"
+    }
+  },
+  "resource": {
+    "metadata": {
+      "size": 123456,
+      "mimeType": "application/json"
+    },
+    "assetID": "extracted:asset-id",
+    "downloadUri": "https://extracted.file.url"
+  }
+}

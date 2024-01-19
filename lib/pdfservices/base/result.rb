@@ -1,5 +1,5 @@
-require "json"
-require "multipart_parser/reader"
+require 'json'
+require 'multipart_parser/reader'
 
 module PdfServices
   module Base
@@ -20,23 +20,24 @@ module PdfServices
         File.write(location, @document)
       end
 
+      # TODO: figure out where this was used and if it's still needed
       def self.from_multipart_response(response)
         parts = parse_multipart(response)[:parts]
         if parts.length == 2
           document = parts[1][:body].join
           Result.new(document, nil)
         else
-          Result.new(nil, "Not 2 parts")
+          Result.new(nil, 'Not 2 parts')
         end
       end
 
       private_class_method def self.parse_multipart(response)
-        content_type = response.headers.get("Content-Type").join(";")
+        content_type = response.headers.get('Content-Type').join(';')
         boundary = MultipartParser::Reader.extract_boundary_value(content_type)
         reader = MultipartParser::Reader.new(boundary)
         body = response.body.to_s
 
-        result = {errors: [], parts: []}
+        result = { errors: [], parts: [] }
         def result.part(name)
           hash = self[:parts].detect { |h| h[:part].name == name }
           [hash[:part], hash[:body].join]
@@ -44,7 +45,7 @@ module PdfServices
 
         reader.on_part do |part|
           result[:parts] << thispart = {
-            part: part,
+            part:,
             body: []
           }
           part.on_data do |chunk|

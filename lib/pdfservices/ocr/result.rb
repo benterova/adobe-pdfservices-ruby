@@ -1,6 +1,6 @@
 require "json"
 require "multipart_parser/reader"
-require "pdfservices/base/result"
+require_relative "../base/result"
 
 module PdfServices
   module Ocr
