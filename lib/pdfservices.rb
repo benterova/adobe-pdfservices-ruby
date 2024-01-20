@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'http'
 require 'json'
 require 'multipart_parser/reader'
 require 'yaml'
+require 'rest_client'
 
-# Client and API
-require_relative 'pdfservices/client'
-require_relative 'pdfservices/api'
+# Base
+require_relative 'pdfservices/base/operation'
+require_relative 'pdfservices/base/result'
 
 # Document Merge
 require_relative 'pdfservices/document_merge/operation'
@@ -25,20 +25,6 @@ require_relative 'pdfservices/html_to_pdf/result'
 require_relative 'pdfservices/extract_pdf/operation'
 require_relative 'pdfservices/extract_pdf/result'
 
-# Base
-require_relative 'pdfservices/base/operation'
-require_relative 'pdfservices/base/result'
-
-module PdfServices
-  attr_reader :api
-
-  include Ocr::Operation
-  include HtmlToPdf::Operation
-  include DocumentMerge::Operation
-  include ExtractPdf::Operation
-
-  def initialize(credentials = nil)
-    @client = Client.new(credentials[:client_id], credentials[:client_secret])
-    @api = Api.new(@client)
-  end
-end
+# Client and API
+require_relative 'pdfservices/client'
+require_relative 'pdfservices/api'

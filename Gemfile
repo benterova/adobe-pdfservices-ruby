@@ -15,3 +15,5 @@ end
 gem "dotenv", "~> 2.8", :group => :development
 
 gem "rubocop", "~> 1.60"
+
+gem "rest-client", "~> 2.1"

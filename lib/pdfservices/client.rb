@@ -6,6 +6,11 @@ module PdfServices
     TOKEN_ENDPOINT = 'https://pdf-services.adobe.io/token'
     attr_reader :client_id
 
+    include Ocr::Operation
+    include HtmlToPdf::Operation
+    include DocumentMerge::Operation
+    include ExtractPdf::Operation
+
     def initialize(client_id, client_secret, access_token = nil)
       @client_id = client_id
       @client_secret = client_secret
@@ -18,14 +23,18 @@ module PdfServices
       @access_token
     end
 
+    def api
+      @api ||= Api.new(self)
+    end
+
     private
 
     def refresh_token
-      response = HTTP.post(TOKEN_ENDPOINT, form: {
-                             client_id: @client_id,
-                             client_secret: @client_secret
-                           })
-      raise JSON.parse(response.body.to_s).fetch('error_description', 'unknown error') unless response.status == 200
+      response = RestClient.post(TOKEN_ENDPOINT, form: {
+                                   client_id: @client_id,
+                                   client_secret: @client_secret
+                                 })
+      raise JSON.parse(response.body.to_s).fetch('error_description', 'unknown error') unless response.code == 200
 
       response_json = JSON.parse(response.body.to_s)
       @access_token = response_json['access_token']

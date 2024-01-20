@@ -5,7 +5,8 @@ require_relative '../base/operation'
 
 module PdfServices
   module Ocr
-    class Operation < Base::Operation
+    module Operation
+      include Base::Operation
       OCR_ENDPOINT = 'https://pdf-services.adobe.io/operation/ocr'
 
       def ocr(source_pdf)
@@ -26,7 +27,7 @@ module PdfServices
 
       def handle_response(response)
         # download_the_asset
-        download_uri = HTTP.get(response['asset']['downloadUri'])
+        download_uri = api.get(response['asset']['downloadUri'])
         # return the result
         result_class.new(download_uri.body, nil)
       end

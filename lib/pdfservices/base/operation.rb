@@ -2,7 +2,7 @@
 
 module PdfServices
   module Base
-    class Operation
+    module Operation
       PRESIGNED_URL_ENDPOINT = 'https://pdf-services.adobe.io/assets'
       ASSETS_ENDPOINT = 'https://pdf-services.adobe.io/assets'
       module Status
@@ -11,19 +11,12 @@ module PdfServices
         FAILED = 'failed'
       end
 
-      def initialize(api = nil)
-        raise ArgumentError, 'ApiService must be provided' if api.nil?
-
-        @api = api
-      end
-
       def upload_asset(asset)
         url = presigned_url
         upload_uri = url['uploadUri']
         asset_id = url['assetID']
-        aws = HTTP.headers({ "Content-Type": 'application/pdf' })
-        response = aws.put(upload_uri, body: File.open(asset))
-        if response.status == 200
+        response = api.put(upload_uri, body: File.new(asset))
+        if response.code == 200
           asset_id
         else
           Result.new(nil, "Unexpected response status from asset upload: #{response.status}")
@@ -54,9 +47,9 @@ module PdfServices
       # Generates a presigned URL for the operation.
       #
       # @return [String] The presigned URL.
-      def presigned_url
-        response = api.post(PRESIGNED_URL_ENDPOINT, json: { mediaType: 'application/pdf' })
-        if response.status == 200
+      def presigned_url(media_type: 'application/pdf')
+        response = api.post(PRESIGNED_URL_ENDPOINT, body: { mediaType: media_type })
+        if response.code == 200
           JSON.parse(response.body.to_s)
         else
           Result.new(nil, "Unexpected response status from get presigned url: #{response.status}")

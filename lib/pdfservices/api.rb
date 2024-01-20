@@ -6,34 +6,41 @@ module PdfServices
       @client = client
     end
 
-    def post(url, body: nil, json: nil)
-      response = HTTP.headers(headers).post(url, body:, json:)
+    def post(url, body: nil, content_type: 'application/json')
+      body = body.to_json if body.is_a?(Hash) && content_type == 'application/json'
+      puts "post url: #{url}, body: #{body}, from: #{caller[0]}"
+      response = RestClient.post(url, body, request_headers(content_type))
       handle_response(response)
     end
 
     def get(url)
-      response = HTTP.headers(headers).get(url)
+      puts "get url: #{url}, from: #{caller[0]}"
+      response = RestClient.get(url, request_headers(nil))
       handle_response(response)
     end
 
-    def put(url, body: nil)
-      response = HTTP.headers(headers).put(url, body:)
+    def put(url, body: nil, content_type: 'application/json')
+      body = body.to_json if body.is_a?(Hash) && content_type == 'application/json'
+      puts "put url: #{url}, body: #{body}, from: #{caller[0]}"
+      response = RestClient.put(url, body, request_headers(content_type))
       handle_response(response)
     end
 
     def delete(url)
-      response = HTTP.headers(headers).delete(url)
+      puts "delete url: #{url}, from: #{caller[0]}"
+      response = RestClient.delete(url, request_headers(nil))
       handle_response(response)
     end
 
     private
 
-    def headers
-      {
+    def request_headers(content_type)
+      headers = {
         'Authorization' => "Bearer #{@client.access_token}",
-        'x-api-key' => @client.client_id,
-        'Content-Type' => 'application/json'
+        'x-api-key' => @client.client_id
       }
+      headers['Content-Type'] = content_type if content_type
+      headers
     end
 
     def handle_response(response)

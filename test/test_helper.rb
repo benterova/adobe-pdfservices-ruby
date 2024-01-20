@@ -25,37 +25,39 @@ module ClientStubs
   module_function
 
   def access_token_request
-    stub_request(:post, 'https://pdf-services.adobe.io/token')
-      .with(headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })
-      .to_return(status: 200, body: json_fixture('access_token_response'))
+    WebMock.stub_request(:post, 'https://pdf-services.adobe.io/token')
+           .with(headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })
+           .to_return(status: 200, body: json_fixture('access_token_response'))
   end
 end
 
 module AssetStubs
+  include WebMock::API
+
   module_function
 
   def presigned_upload_url_request
-    stub_request(:post, 'https://pdf-services.adobe.io/storage/url')
-      .with(headers: secured_headers)
-      .to_return(status: 200, body: json_fixture('presigned_upload_url_response'))
+    WebMock.stub_request(:post, 'https://pdf-services.adobe.io/assets')
+           .with(headers: secured_headers)
+           .to_return(status: 200, body: json_fixture('presigned_upload_url_response'))
   end
 
   def upload_request
-    stub_request(:put, 'https://a.presigned.url')
-      .with(headers: secured_headers)
-      .to_return(status: 200)
+    WebMock.stub_request(:put, 'https://a.presigned.url')
+           .with(headers: secured_headers)
+           .to_return(status: 200)
   end
 
   def delete_asset_request
-    stub_request(:delete, %r{https://pdf-services.adobe.io/assets/.*})
-      .with(headers: secured_headers)
-      .to_return(status: 200, body: '', headers: {})
+    WebMock.stub_request(:delete, %r{https://pdf-services.adobe.io/assets/.*})
+           .with(headers: secured_headers)
+           .to_return(status: 200, body: '', headers: {})
   end
 
   def download_asset_request
-    stub_request(:get, %r{https://.*\file.url})
-      .with(headers: secured_headers)
-      .to_return(status: 200, body: 'fake pdf', headers: {})
+    WebMock.stub_request(:get, %r{https://.*\file.url})
+           .with(headers: secured_headers)
+           .to_return(status: 200, body: 'fake pdf', headers: {})
   end
 end
 
@@ -63,15 +65,15 @@ module OperationStubs
   module_function
 
   def request
-    stub_request(:post, %r{https://pdf-services.adobe.io/operation/.*})
-      .with(headers: secured_headers)
-      .to_return(..->(request) { operation_response(request) })
+    WebMock.stub_request(:post, %r{https://pdf-services.adobe.io/operation/.*})
+           .with(headers: secured_headers)
+           .to_return(->(request) { operation_response(request) })
   end
 
   def request_with_error
-    stub_request(:post, %r{https://pdf-services.adobe.io/operation/.*})
-      .with(headers: secured_headers)
-      .to_return(status: 400, body: json_fixture('operation_request_error'))
+    WebMock.stub_request(:post, %r{https://pdf-services.adobe.io/operation/.*})
+           .with(headers: secured_headers)
+           .to_return(status: 400, body: json_fixture('operation_request_error'))
   end
 
   def operation_response(request)
@@ -85,22 +87,24 @@ module OperationStubs
 end
 
 module PollingStubs
+  include WebMock::API
+
   module_function
 
   def request
-    stub_request(:get, %r{https://.*\.polling.url})
-      .with(headers: secured_headers)
-      .to_return(->(request) { PollingStubs.response(request) })
-      .to_return(->(request) { PollingStubs.response(request) })
-      .to_return(->(request) { PollingStubs.done_response(request) })
+    WebMock.stub_request(:get, %r{https://.*\.polling.url})
+           .with(headers: secured_headers)
+           .to_return(->(request) { PollingStubs.response(request) })
+           .to_return(->(request) { PollingStubs.response(request) })
+           .to_return(->(request) { PollingStubs.done_response(request) })
   end
 
   def request_with_error
-    stub_request(:get, %r{https://.*\.polling.url})
-      .with(headers: secured_headers)
-      .to_return(->(request) { PollingStubs.response(request) })
-      .to_return(->(request) { PollingStubs.response(request) })
-      .to_return(->(request) { PollingStubs.error_response(request) })
+    WebMock.stub_request(:get, %r{https://.*\.polling.url})
+           .with(headers: secured_headers)
+           .to_return(->(request) { PollingStubs.response(request) })
+           .to_return(->(request) { PollingStubs.response(request) })
+           .to_return(->(request) { PollingStubs.error_response(request) })
   end
 
   def response(request)
@@ -129,9 +133,12 @@ def multipart_fixture(name)
   IO.binread(path)
 end
 
+def file_fixture_path(file_name)
+  File.join(Dir.pwd, 'test', 'fixtures', 'files', file_name)
+end
+
 def file_fixture(file_name)
-  path = File.join(Dir.pwd, 'test', 'fixtures', 'files', file_name)
-  File.read(path)
+  File.read(file_fixture_path(file_name))
 end
 
 def json_headers

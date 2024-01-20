@@ -1,5 +1,4 @@
 require 'test_helper'
-require_relative '../../lib/pdfservices/extract_pdf/operation'
 
 class ExtractPdfOperationTest < Minitest::Test
   def setup
@@ -8,22 +7,26 @@ class ExtractPdfOperationTest < Minitest::Test
   end
 
   def test_extract_pdf_with_valid_options
-    response = @client.extract_pdf('source.pdf', renditions_to_extract: ['text'], table_output_format: 'csv',
-                                                 extract_elements: ['tables'])
-    assert_equal json_fixture('extractpdf_done'), response.job_location
+    result = @client.extract_pdf(file_fixture_path('not_yet_extracted.pdf'), renditions_to_extract: ['tables'], table_output_format: 'csv',
+                                                                             extract_elements: ['text'])
+    assert_equal JSON.parse(json_fixture('extractpdf_done')), result.body
+    puts 'Valid test: Success'
   end
 
   def test_extract_pdf_with_invalid_options
+    source = file_fixture_path('not_yet_extracted.pdf')
     assert_raises(ArgumentError) do
-      @client.extract_pdf('source.pdf', renditions_to_extract: ['invalid_rendition'])
+      @client.extract_pdf(source, renditions_to_extract: ['invalid_rendition'])
     end
 
     assert_raises(ArgumentError) do
-      @client.extract_pdf('source.pdf', table_output_format: 'invalid_format')
+      @client.extract_pdf(source, table_output_format: 'invalid_format')
     end
 
     assert_raises(ArgumentError) do
-      @client.extract_pdf('source.pdf', extract_elements: ['invalid_element'])
+      @client.extract_pdf(source, extract_elements: ['invalid_element'])
     end
+
+    puts 'Invalid test: Success'
   end
 end

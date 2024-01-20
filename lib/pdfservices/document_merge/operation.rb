@@ -2,7 +2,8 @@
 
 module PdfServices
   module DocumentMerge
-    class Operation < Base::Operation
+    module Operation
+      include Base::Operation
       OPERATION_ENDPOINT = 'https://pdf-services.adobe.io/operation/documentgeneration'
 
       def document_merge(_template_path = nil, json_data_for_merge = nil, output_format = nil)
@@ -27,7 +28,7 @@ module PdfServices
 
       def handle_response(response)
         # download_the_asset
-        download_uri = HTTP.get(response['asset']['downloadUri'])
+        download_uri = api.get(response['asset']['downloadUri'])
         result_class.new(download_uri.body, nil)
       end
 
