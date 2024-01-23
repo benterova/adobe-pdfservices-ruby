@@ -11,9 +11,11 @@ end
 
 def setup_stubs
   PollingStubs.request
-  PollingStubs.request_with_error
+  # PollingStubs.request_with_error
   AssetStubs.presigned_upload_url_request
+  AssetStubs.presigned_download_url_request
   AssetStubs.upload_request
+  AssetStubs.download_request
   AssetStubs.delete_asset_request
   AssetStubs.download_asset_request
   ClientStubs.access_token_request
@@ -42,9 +44,21 @@ module AssetStubs
            .to_return(status: 200, body: json_fixture('presigned_upload_url_response'))
   end
 
+  def presigned_download_url_request
+    WebMock.stub_request(:get, %r{https://pdf-services.adobe.io/assets/.*})
+           .with(headers: secured_headers)
+           .to_return(status: 200, body: json_fixture('presigned_download_url_response'))
+  end
+
   def upload_request
     WebMock.stub_request(:put, 'https://a.presigned.url')
            .to_return(status: 200)
+  end
+
+  def download_request
+    WebMock.stub_request(:get, 'https://a.presigned.url')
+           .with(headers: secured_headers)
+           .to_return(status: 200, body: file_fixture('fake_ocr_done.pdf'), headers: {})
   end
 
   def delete_asset_request
@@ -66,7 +80,7 @@ module OperationStubs
   def request
     WebMock.stub_request(:post, %r{https://pdf-services.adobe.io/operation/.*})
            .with(headers: secured_headers)
-           .to_return(->(request) { operation_response(request) })
+           .to_return(->(request) { operation_in_progress_response(request) })
   end
 
   def request_with_error
@@ -75,9 +89,9 @@ module OperationStubs
            .to_return(status: 400, body: json_fixture('operation_request_error'))
   end
 
-  def operation_response(request)
+  def operation_in_progress_response(request)
     operation_name = operation_name(request)
-    { status: 201, headers: { 'location' => "https://#{operation_name}.polling.url" } }.merge(json_headers)
+    { status: 201, headers: { 'location' => "https://polling.url/#{operation_name}" }.merge(json_headers) }
   end
 
   def operation_name(request)
@@ -91,34 +105,44 @@ module PollingStubs
   module_function
 
   def request
-    WebMock.stub_request(:get, %r{https://.*\.polling.url})
+    WebMock.stub_request(:get, %r{https://polling.url/.*})
            .with(headers: secured_headers)
-           .to_return(->(request) { PollingStubs.response(request) })
-           .to_return(->(request) { PollingStubs.response(request) })
+           .to_return(->(request) { PollingStubs.in_progress_response(request) })
+           .to_return(->(request) { PollingStubs.in_progress_response(request) })
            .to_return(->(request) { PollingStubs.done_response(request) })
   end
 
   def request_with_error
-    WebMock.stub_request(:get, %r{https://.*\.polling.url})
+    WebMock.stub_request(:get, %r{https://polling.url/.*})
            .with(headers: secured_headers)
-           .to_return(->(request) { PollingStubs.response(request) })
-           .to_return(->(request) { PollingStubs.response(request) })
+           .to_return(->(request) { PollingStubs.in_progress_response(request) })
+           .to_return(->(request) { PollingStubs.in_progress_response(request) })
            .to_return(->(request) { PollingStubs.error_response(request) })
   end
 
-  def response(request)
-    operation_name = request.uri
-    json_fixture("#{operation_name}_request_in_progress")
+  def in_progress_response(request)
+    operation_name = operation_name request
+    response = OpenStruct.new JSON.parse(json_fixture("#{operation_name}_in_progress"))
+    response.body = response.body.to_json
+    response
   end
 
   def done_response(request)
-    operation_name = request.uri.path.split('/')[1]
-    json_fixture("#{operation_name}_request_done")
+    operation_name = operation_name request
+    response = OpenStruct.new JSON.parse(json_fixture("#{operation_name}_done"))
+    response.body = response.body.to_json
+    response
   end
 
   def error_response(request)
-    operation_name = request.uri.path.split('/')[1]
-    json_fixture("#{operation_name}_request_error")
+    operation_name = operation_name request
+    response = OpenStruct.new JSON.parse(json_fixture("#{operation_name}_error"))
+    response.body = response.body.to_json
+    response
+  end
+
+  def operation_name(request)
+    request.uri.path.split('/')[1]
   end
 end
 
@@ -145,8 +169,7 @@ def json_headers
 end
 
 def secured_headers
-  { Authorization: 'Bearer fake1.fake2.fake3', 'x-api-key': '123someclientid',
-    'Content-Type': 'application/json' }
+  { Authorization: 'Bearer fake1.fake2.fake3', 'X-Api-Key': '123someclientid' }
 end
 
 def pdf_headers

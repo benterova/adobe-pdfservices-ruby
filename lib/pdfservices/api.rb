@@ -4,8 +4,9 @@ module PdfServices
   class Api
     attr_accessor :access_token
 
-    def initialize(access_token = nil)
+    def initialize(access_token = nil, client_id = nil)
       @access_token = access_token
+      @client_id = client_id
 
       @connection = Faraday.new do |conn|
         conn.request :url_encoded
@@ -46,7 +47,7 @@ module PdfServices
     private
 
     def merge_default_headers(headers)
-      default_headers = { 'Authorization' => "Bearer #{@access_token}" }
+      default_headers = { 'Authorization' => "Bearer #{@access_token}", 'X-Api-Key' => @client_id }
       default_headers.merge(headers)
     end
 

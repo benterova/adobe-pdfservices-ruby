@@ -5,6 +5,12 @@ require 'multipart_parser/reader'
 require 'yaml'
 require 'faraday'
 
+# Errors
+require_relative 'pdfservices/errors'
+
+# Asset
+require_relative 'pdfservices/asset'
+
 # Base
 require_relative 'pdfservices/base/operation'
 require_relative 'pdfservices/base/result'

@@ -10,7 +10,7 @@ module PdfServices
       @client_secret = client_secret
       valid_access_token? ? access_token : refresh_token
       @expires_at = Time.now
-      @api = Api.new(@access_token)
+      @api = Api.new(@access_token, @client_id)
     end
 
     def valid_access_token?
@@ -18,7 +18,6 @@ module PdfServices
     end
 
     def refresh_token
-      puts "Getting refresh token for #{@client_id}"
       response = Faraday.post(TOKEN_ENDPOINT) do |req|
         req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         req.body = {

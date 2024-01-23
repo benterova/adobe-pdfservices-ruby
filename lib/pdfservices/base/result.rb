@@ -4,10 +4,11 @@ require 'multipart_parser/reader'
 module PdfServices
   module Base
     class Result
-      attr_accessor :document, :error
+      attr_accessor :content, :error
 
-      def initialize(document, error)
-        @document = document
+      def initialize(content, resource = nil, error = nil)
+        @content = content
+        @resource = resource
         @error = error
       end
 

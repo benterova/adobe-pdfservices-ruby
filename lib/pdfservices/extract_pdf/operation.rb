@@ -10,10 +10,11 @@ module PdfServices
 
       def execute(source_pdf = nil, options = {})
         validate_options(options)
-        asset_id = upload_asset(source_pdf)
+        asset = upload_asset(source_pdf)
 
-        response = @api.post(OPERATION_ENDPOINT, body: extract_pdf_request_body(asset_id, options))
-        handle_extract_pdf_response(response, asset_id)
+        response = @api.post(OPERATION_ENDPOINT, body: extract_pdf_request_body(asset.id, options),
+                                                 headers: extract_pdf_request_headers)
+        handle_extract_pdf_response(response, asset)
       end
 
       private
@@ -29,16 +30,22 @@ module PdfServices
         }
       end
 
-      def handle_extract_pdf_response(response, asset_id)
-        if response.status == 201
-          document_url = response.headers['location']
-          poll_document_result(document_url, asset_id) do |response|
-            Result.new(JSON.parse(response.body), nil)
-          end
-        else
-          Result.new(nil,
-                     "Unexpected response status from extract pdf endpoint: #{response.status}\nasset_id: #{asset_id}")
-        end
+      def extract_pdf_request_headers
+        { 'Content-Type' => 'application/json' }
+      end
+
+      def handle_extract_pdf_response(response, asset)
+        raise OperationError, "Extract PDF operation failed: #{response.body}" unless response.status == 201
+
+        document_url = response.headers['location']
+        poll_document_result(document_url, asset)
+      end
+
+      def handle_polling_done(json_response, original_asset)
+        asset_id = json_response['content']['assetID']
+        file = Asset.new(@api).download(asset_id)
+        super
+        file.body
       end
 
       def validate_options(options)
