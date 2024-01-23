@@ -2,49 +2,56 @@
 
 module PdfServices
   class Api
-    def initialize(client)
-      @client = client
+    attr_accessor :access_token
+
+    def initialize(access_token = nil)
+      @access_token = access_token
+
+      @connection = Faraday.new do |conn|
+        conn.request :url_encoded
+        conn.adapter Faraday.default_adapter
+      end
     end
 
-    def post(url, body: nil, content_type: 'application/json')
-      body = body.to_json if body.is_a?(Hash) && content_type == 'application/json'
-      puts "post url: #{url}, body: #{body}, from: #{caller[0]}"
-      response = RestClient.post(url, body, request_headers(content_type))
+    def post(url, body:, headers: {})
+      response = @connection.post(url) do |req|
+        req.headers = merge_default_headers(headers)
+        req.body = body
+      end
       handle_response(response)
     end
 
-    def get(url)
-      puts "get url: #{url}, from: #{caller[0]}"
-      response = RestClient.get(url, request_headers(nil))
+    def get(url, headers: {})
+      response = @connection.get(url) do |req|
+        req.headers = merge_default_headers(headers)
+      end
       handle_response(response)
     end
 
-    def put(url, body: nil, content_type: 'application/json')
-      body = body.to_json if body.is_a?(Hash) && content_type == 'application/json'
-      puts "put url: #{url}, body: #{body}, from: #{caller[0]}"
-      response = RestClient.put(url, body, request_headers(content_type))
+    def put(url, body:, headers: {})
+      response = @connection.put(url) do |req|
+        req.headers = merge_default_headers(headers)
+        req.body = body
+      end
       handle_response(response)
     end
 
-    def delete(url)
-      puts "delete url: #{url}, from: #{caller[0]}"
-      response = RestClient.delete(url, request_headers(nil))
+    def delete(url, headers: {})
+      response = @connection.delete(url) do |req|
+        req.headers = merge_default_headers(headers)
+      end
       handle_response(response)
     end
 
     private
 
-    def request_headers(content_type)
-      headers = {
-        'Authorization' => "Bearer #{@client.access_token}",
-        'x-api-key' => @client.client_id
-      }
-      headers['Content-Type'] = content_type if content_type
-      headers
+    def merge_default_headers(headers)
+      default_headers = { 'Authorization' => "Bearer #{@access_token}" }
+      default_headers.merge(headers)
     end
 
     def handle_response(response)
-      # Handle response logic here (e.g., error checking)
+      # Implement response handling logic here, like error checking
       response
     end
   end

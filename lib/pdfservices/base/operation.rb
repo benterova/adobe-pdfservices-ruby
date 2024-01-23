@@ -2,72 +2,67 @@
 
 module PdfServices
   module Base
-    module Operation
+    class Operation
+      BASE_ENDPOINT = 'https://pdf-services.adobe.io/operation/'
       PRESIGNED_URL_ENDPOINT = 'https://pdf-services.adobe.io/assets'
       ASSETS_ENDPOINT = 'https://pdf-services.adobe.io/assets'
-      module Status
-        IN_PROGRESS = 'in progress'
-        DONE = 'done'
-        FAILED = 'failed'
+      STATUS = {
+        in_progress: 'in progress',
+        done: 'done',
+        failed: 'failed'
+      }.freeze
+
+      def initialize(api)
+        @api = api
       end
 
       def upload_asset(asset)
         url = presigned_url
         upload_uri = url['uploadUri']
         asset_id = url['assetID']
-        response = api.put(upload_uri, body: File.new(asset))
-        if response.code == 200
+        response = @api.put(upload_uri, body: File.new(asset))
+
+        if response.status == 200
           asset_id
         else
-          Result.new(nil, "Unexpected response status from asset upload: #{response.status}")
+          Result.new(nil,
+                     "Unexpected response status from asset upload: #{response.status}")
         end
       end
 
-      #
-      # Polls the document result by making GET requests to the specified URL until the status is either
-      # "DONE" or "FAILED". Deletes the original asset and the resulting asset after processing is complete.
-      #
-      # @param url [String] The URL to poll for the document result.
-      # @param original_asset_id [String, nil] The ID of the original asset to delete.
-      # @yield [json_response] Optional block to process the JSON response when the status is "DONE".
-      # @return [Result] A Result object with the appropriate error message if the operation fails.
       def poll_document_result(url, original_asset_id, &block)
-        response = api.get(url)
-        if response.status == 200
-          json_response = JSON.parse(response.body.to_s)
-          asset_id = json_response&.[]('asset')&.[]('assetID')
-          handle_polling_result(json_response, original_asset_id, asset_id, &block)
-        else
-          handle_polling_error(json_response, original_asset_id)
-        end
+        response = @api.get(url)
+        return handle_polling_error(response, original_asset_id) unless response.status == 200
+
+        json_response = JSON.parse(response.body.to_s)
+        asset_id = json_response['asset']['assetID']
+        handle_polling_result(json_response, original_asset_id, asset_id, &block)
       end
 
       private
 
-      # Generates a presigned URL for the operation.
-      #
-      # @return [String] The presigned URL.
       def presigned_url(media_type: 'application/pdf')
-        response = api.post(PRESIGNED_URL_ENDPOINT, body: { mediaType: media_type })
-        if response.code == 200
+        response = @api.post(PRESIGNED_URL_ENDPOINT, body: { mediaType: media_type })
+        if response.status == 200
           JSON.parse(response.body.to_s)
         else
-          Result.new(nil, "Unexpected response status from get presigned url: #{response.status}")
+          Result.new(nil,
+                     "Unexpected response status from get presigned url: #{response.status}")
         end
       end
 
       def delete_the_asset(asset_id)
-        api.delete("#{ASSETS_ENDPOINT}/#{asset_id}")
+        @api.delete("#{ASSETS_ENDPOINT}/#{asset_id}") if asset_id
       end
 
       def handle_polling_result(json_response, original_asset_id, asset_id, &block)
         case json_response['status']
-        when Status::IN_PROGRESS
-          sleep(1)
+        when STATUS[:in_progress]
+          sleep(1) # Consider a more sophisticated retry strategy
           poll_document_result(url, original_asset_id, &block)
-        when Status::DONE
+        when STATUS[:done]
           handle_polling_done(json_response, original_asset_id, asset_id, &block)
-        when Status::FAILED
+        when STATUS[:failed]
           handle_polling_failed(original_asset_id)
         else
           handle_polling_unexpected_status(json_response, original_asset_id)
@@ -75,25 +70,25 @@ module PdfServices
       end
 
       def handle_polling_done(json_response, original_asset_id, asset_id, &block)
-        result = yield(json_response) if block
-        delete_the_asset(original_asset_id) unless original_asset_id.nil?
-        delete_the_asset(asset_id) unless asset_id.nil?
-        result
+        result = block.call(json_response) if block_given?
+        delete_the_asset(original_asset_id)
+        delete_the_asset(asset_id)
+        result || Result.new(json_response, nil)
       end
 
       def handle_polling_failed(original_asset_id)
-        delete_the_asset(original_asset_id) unless original_asset_id.nil?
-        result_class.new(nil, 'Operation Failed')
+        delete_the_asset(original_asset_id)
+        Result.new(nil, 'Operation Failed')
       end
 
       def handle_polling_unexpected_status(json_response, original_asset_id)
-        delete_the_asset(original_asset_id) if original_asset_id.present?
-        result_class.new(nil, "Unexpected status from polling: #{json_response['status']}")
+        delete_the_asset(original_asset_id)
+        Result.new(nil, "Unexpected status from polling: #{json_response['status']}")
       end
 
-      def handle_polling_error(json_response, original_asset_id)
-        delete_the_asset(original_asset_id) if original_asset_id.present?
-        result_class.new(nil, "Unexpected response status from polling: #{json_response['status']}")
+      def handle_polling_error(response, original_asset_id)
+        delete_the_asset(original_asset_id)
+        Result.new(nil, "Unexpected response status from polling: #{response.status}")
       end
     end
   end

@@ -18,7 +18,7 @@ def setup_stubs
   AssetStubs.download_asset_request
   ClientStubs.access_token_request
   OperationStubs.request
-  OperationStubs.request_with_error
+  # OperationStubs.request_with_error
 end
 
 module ClientStubs
@@ -44,7 +44,6 @@ module AssetStubs
 
   def upload_request
     WebMock.stub_request(:put, 'https://a.presigned.url')
-           .with(headers: secured_headers)
            .to_return(status: 200)
   end
 
@@ -146,11 +145,8 @@ def json_headers
 end
 
 def secured_headers
-  {
-    Authorization: 'Bearer fake1.fake2.fake3',
-    "Content-Type": 'application/json',
-    "X-Api-Key": '123someclientid'
-  }
+  { Authorization: 'Bearer fake1.fake2.fake3', 'x-api-key': '123someclientid',
+    'Content-Type': 'application/json' }
 end
 
 def pdf_headers

@@ -1,44 +1,59 @@
 # frozen_string_literal: true
 
 module PdfServices
-  # Represents a client for interacting with PDF services.
   class Client
     TOKEN_ENDPOINT = 'https://pdf-services.adobe.io/token'
-    attr_reader :client_id
-
-    include Ocr::Operation
-    include HtmlToPdf::Operation
-    include DocumentMerge::Operation
-    include ExtractPdf::Operation
+    attr_reader :client_id, :client_secret, :expires_at
 
     def initialize(client_id, client_secret, access_token = nil)
       @client_id = client_id
       @client_secret = client_secret
-      @access_token = access_token
+      valid_access_token? ? access_token : refresh_token
       @expires_at = Time.now
+      @api = Api.new(@access_token)
     end
 
-    def access_token
-      refresh_token if @access_token.nil? || Time.now >= @expires_at
-      @access_token
+    def valid_access_token?
+      @access_token.present? && Time.now <= @expires_at
     end
 
-    def api
-      @api ||= Api.new(self)
+    def refresh_token
+      puts "Getting refresh token for #{@client_id}"
+      response = Faraday.post(TOKEN_ENDPOINT) do |req|
+        req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        req.body = {
+          client_id: @client_id,
+          client_secret: @client_secret
+        }
+      end
+
+      raise "Token refresh error: #{response.status} - #{response.body}" unless response.status == 200
+
+      response_json = JSON.parse(response.body)
+      @access_token = response_json['access_token']
+      @expires_at = Time.now + response_json['expires_in'].to_i
+    end
+
+    def method_missing(method_name, *args, &block)
+      operation_class_name = "PdfServices::#{camelize(method_name.to_s)}::Operation"
+      if Object.const_defined?(operation_class_name)
+        operation_class = Object.const_get(operation_class_name)
+        operation = operation_class.new(@api)
+        operation.execute(*args, &block)
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      operation_class_name = "PdfServices::#{camelize(method_name.to_s)}::Operation"
+      Object.const_defined?(operation_class_name) || super
     end
 
     private
 
-    def refresh_token
-      response = RestClient.post(TOKEN_ENDPOINT, form: {
-                                   client_id: @client_id,
-                                   client_secret: @client_secret
-                                 })
-      raise JSON.parse(response.body.to_s).fetch('error_description', 'unknown error') unless response.code == 200
-
-      response_json = JSON.parse(response.body.to_s)
-      @access_token = response_json['access_token']
-      @expires_at = Time.now + response_json['expires_in'].to_i
+    def camelize(str)
+      str.split('_').map(&:capitalize).join
     end
   end
 end

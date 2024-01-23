@@ -3,7 +3,7 @@
 require 'json'
 require 'multipart_parser/reader'
 require 'yaml'
-require 'rest_client'
+require 'faraday'
 
 # Base
 require_relative 'pdfservices/base/operation'
