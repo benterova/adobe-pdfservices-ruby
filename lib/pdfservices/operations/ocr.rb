@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../ocr/result'
-require_relative '../base/operation'
-
 module PdfServices
   module Ocr
     class Operation < Base::Operation

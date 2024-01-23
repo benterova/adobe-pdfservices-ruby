@@ -12,24 +12,19 @@ require_relative 'pdfservices/errors'
 require_relative 'pdfservices/asset'
 
 # Base
-require_relative 'pdfservices/base/operation'
-require_relative 'pdfservices/base/result'
+require_relative 'pdfservices/operations/base'
 
 # Document Merge
-require_relative 'pdfservices/document_merge/operation'
-require_relative 'pdfservices/document_merge/result'
+require_relative 'pdfservices/operations/document_merge'
 
 # OCR
-require_relative 'pdfservices/ocr/operation'
-require_relative 'pdfservices/ocr/result'
+require_relative 'pdfservices/operations/ocr'
 
 # HTML to PDF
-require_relative 'pdfservices/html_to_pdf/operation'
-require_relative 'pdfservices/html_to_pdf/result'
+require_relative 'pdfservices/operations/html_to_pdf'
 
 # Extract PDF
-require_relative 'pdfservices/extract_pdf/operation'
-require_relative 'pdfservices/extract_pdf/result'
+require_relative 'pdfservices/operations/extract_pdf'
 
 # Client and API
 require_relative 'pdfservices/client'

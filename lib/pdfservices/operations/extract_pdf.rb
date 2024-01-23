@@ -37,8 +37,8 @@ module PdfServices
       def handle_extract_pdf_response(response, asset)
         raise OperationError, "Extract PDF operation failed: #{response.body}" unless response.status == 201
 
-        document_url = response.headers['location']
-        poll_document_result(document_url, asset)
+        polling_url = response.headers['location']
+        poll_document_result(polling_url, asset)
       end
 
       def handle_polling_done(json_response, original_asset)

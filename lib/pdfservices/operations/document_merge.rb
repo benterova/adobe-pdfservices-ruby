@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../base/operation'
-require_relative 'result'
-
 module PdfServices
   module DocumentMerge
     class Operation < Base::Operation
