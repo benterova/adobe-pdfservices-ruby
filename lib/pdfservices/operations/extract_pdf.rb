@@ -10,6 +10,7 @@ module PdfServices
 
       def execute(source_pdf = nil, options = {})
         validate_options(options)
+        @download_zip = options.delete(:download_zip) || false
         asset = upload_asset(source_pdf)
 
         response = @api.post(OPERATION_ENDPOINT, body: extract_pdf_request_body(asset.id, options),
@@ -42,7 +43,8 @@ module PdfServices
       end
 
       def handle_polling_done(json_response, original_asset)
-        asset_id = json_response['content']['assetID']
+        file_key = @download_zip ? 'resource' : 'content'
+        asset_id = json_response[file_key]['assetID']
         file = Asset.new(@api).download(asset_id)
         super
         file.body
