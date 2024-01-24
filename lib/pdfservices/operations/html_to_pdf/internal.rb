@@ -31,7 +31,6 @@ module PdfServices
           pageLayout: camelize_keys(options.fetch(:page_layout, {})),
           json: transform_json(options.fetch(:json, ''))
         }
-        body[:fragments] = options[:fragments] if options[:fragments]
         body[:notifiers] = options[:notifiers] if options[:notifiers]
         body
       end
@@ -47,6 +46,7 @@ module PdfServices
           raise ArgumentError, "Invalid option: #{key}" unless INTERNAL_OPTIONS.include?(key)
         end
 
+        validate_required_keys(options)
         validate_page_layout_options(options[:page_layout]) if options[:page_layout]
       end
 

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module PdfServices
-  module HtmlToPdf
+  module Ocr
     class External < Operation
       EXTERNAL_OPTIONS = %i[input output params download_from_external].freeze
       INPUT_KEYS = %i[uri storage].freeze
       OUTPUT_KEYS = %i[uri storage].freeze
-      PARAMS_KEYS = %i[include_header_footer json page_layout].freeze
+      PARAMS_KEYS = %i[ocr_lang ocr_type].freeze
       STORAGE_OPTIONS = %i[S3 SHAREPOINT DROPBOX BLOB].freeze
 
       def initialize(api)
@@ -48,9 +48,14 @@ module PdfServices
       def validate_options(options)
         raise ArgumentError, 'Options must be a hash' unless options.is_a?(Hash)
 
+        ocr_lang = options[:params][:ocr_lang]
+        ocr_type = options[:params][:ocr_type]
+
         validate_required_keys(options)
         validate_input_options(options[:input])
         validate_output_options(options[:output])
+        validate_ocr_lang_option(ocr_lang) if ocr_lang
+        validate_ocr_type_option(ocr_type) if ocr_type
       end
 
       def validate_required_keys(options)
@@ -90,6 +95,14 @@ module PdfServices
 
         raise ArgumentError,
               "Invalid storage option: #{storage_option}"
+      end
+
+      def validate_params_options(params_options)
+        raise ArgumentError, 'Params options must be a hash' unless params_options.is_a?(Hash)
+
+        params_options.each_key do |key|
+          raise ArgumentError, "Invalid params option: #{key}" unless PARAMS_KEYS.include?(key)
+        end
       end
     end
   end
