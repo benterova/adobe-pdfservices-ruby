@@ -1,11 +1,9 @@
 PATH
   remote: .
   specs:
-    adobe_pdfservices (0.1.0)
-      http (~> 5.1)
+    adobe-pdfservices-ruby (0.1.1)
+      faraday (~> 2.9)
       json (~> 2.6)
-      jwt (>= 1.0, < 3.0)
-      multipart-parser (~> 0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -15,33 +13,15 @@ GEM
     ast (2.4.2)
     crack (0.4.5)
       rexml
-    domain_name (0.6.20240107)
     dotenv (2.8.1)
     faraday (2.9.0)
       faraday-net_http (>= 2.0, < 3.2)
     faraday-net_http (3.1.0)
       net-http
-    ffi (1.16.3)
-    ffi-compiler (1.0.1)
-      ffi (>= 1.0.0)
-      rake
     hashdiff (1.1.0)
-    http (5.1.1)
-      addressable (~> 2.8)
-      http-cookie (~> 1.0)
-      http-form_data (~> 2.2)
-      llhttp-ffi (~> 0.4.0)
-    http-cookie (1.0.5)
-      domain_name (~> 0.5)
-    http-form_data (2.3.0)
     json (2.7.1)
-    jwt (2.7.1)
     language_server-protocol (3.17.0.3)
-    llhttp-ffi (0.4.0)
-      ffi-compiler (~> 1.0)
-      rake (~> 13.0)
     minitest (5.21.2)
-    multipart-parser (0.1.1)
     net-http (0.4.1)
       uri
     parallel (1.24.0)
@@ -81,9 +61,8 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  adobe_pdfservices!
+  adobe-pdfservices-ruby!
   dotenv (~> 2.8)
-  faraday (~> 2.9)
   minitest (~> 5.0)
   rake (~> 13.0)
   rubocop (~> 1.60)
