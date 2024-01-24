@@ -9,3 +9,6 @@
 - Refactor for DRYness and use modern Ruby syntax
 - Add support for PDF extraction
 - Change usage to use a single client object
+- EXPERIMENTAL: Add support for internal and external operations (OCR, htmltopdf, documentgeneration)
+- Update tests
+- Update README
