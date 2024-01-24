@@ -1,6 +1,6 @@
 module PdfServices
   class Asset
-    ASSETS_ENDPOINT = 'https://pdf-services.adobe.io/assets'.freeze
+    ASSETS_ENDPOINT = 'https://pdf-services-ue1.adobe.io/assets'.freeze
 
     attr_reader :id
 
@@ -11,8 +11,8 @@ module PdfServices
       @id = id
     end
 
-    def upload(file)
-      url = presigned_url
+    def upload(file, media_type: 'application/pdf')
+      url = presigned_url(media_type:)
       upload_uri = url['uploadUri']
       asset_id = url['assetID']
 
@@ -31,7 +31,7 @@ module PdfServices
 
       @id = asset_id if asset_id
 
-      url = presigned_url('download')
+      url = presigned_url(:download)
       download_uri = url['downloadUri']
       @api.get(download_uri)
     end
@@ -44,11 +44,11 @@ module PdfServices
 
     private
 
-    def presigned_url(operation = 'upload', media_type: 'application/pdf')
+    def presigned_url(operation = :upload, media_type: 'application/pdf')
       case operation
-      when 'upload'
+      when :upload
         response = @api.post(ASSETS_ENDPOINT, body: { mediaType: media_type })
-      when 'download'
+      when :download
         response = @api.get("#{ASSETS_ENDPOINT}/#{@id}")
       end
       JSON.parse response.body.to_s

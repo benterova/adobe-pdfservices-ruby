@@ -1,4 +1,4 @@
 {
-  "assetID": "urn:a-real-long-asset-asset-id",
-  "uploadUri": "https://a.presigned.url"
+  "assetID": "",
+  "uploadUri": "https://a.presigned.url/assets/"
 }

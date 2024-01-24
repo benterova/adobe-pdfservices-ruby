@@ -3,8 +3,8 @@
 module PdfServices
   module Base
     class Operation
-      BASE_ENDPOINT = 'https://pdf-services.adobe.io/operation/'
-      ASSETS_ENDPOINT = 'https://pdf-services.adobe.io/assets'
+      BASE_ENDPOINT = 'https://pdf-services-ue1.adobe.io/operation/'
+      ASSETS_ENDPOINT = 'https://pdf-services-ue1.adobe.io/assets/'
       STATUS = {
         in_progress: 'in progress',
         done: 'done',
@@ -16,12 +16,12 @@ module PdfServices
       end
 
       def upload_asset(asset)
+        asset = File.open(asset, 'rb') if asset.is_a?(String)
         Asset.new(@api).upload(asset)
       end
 
       def poll_document_result(url, original_asset, &block)
         response = @api.get(url)
-
         json_response = JSON.parse(response.body.to_s)
         handle_polling_result(url, json_response, original_asset, &block)
       end

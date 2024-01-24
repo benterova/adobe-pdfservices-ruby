@@ -1,5 +1,5 @@
 {
-  "downloadUri": "https://a.presigned.url",
+  "downloadUri": "https://a.presigned.url/assets/",
   "size": 13130,
   "type": "application/pdf"
 }

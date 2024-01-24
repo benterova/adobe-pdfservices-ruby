@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module PdfServices
-  module HtmlToPdf
+  module DocumentGeneration
     class Operation < InternalExternalOperation::Operation
-      OPERATION_ENDPOINT = "#{BASE_ENDPOINT}htmltopdf".freeze
+      OPERATION_ENDPOINT = "#{BASE_ENDPOINT}documentgeneration".freeze
 
       def request_headers
         { 'Content-Type' => 'application/json' }

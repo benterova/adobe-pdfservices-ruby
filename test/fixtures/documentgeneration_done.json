@@ -1,0 +1,13 @@
+{
+  "body": {
+    "status": "done",
+    "asset": {
+      "metadata": {
+        "type": "application/pdf",
+        "size": 200791
+      },
+      "downloadUri": "https://a.presigned.url/assets/documentgeneration",
+      "assetID": "documentgeneration"
+    }
+  }
+}

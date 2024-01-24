@@ -3,7 +3,7 @@
 module PdfServices
   module Ocr
     class Operation < Base::Operation
-      OCR_ENDPOINT = 'https://pdf-services.adobe.io/operation/ocr'
+      OCR_ENDPOINT = 'https://pdf-services-ue1.adobe.io/operation/ocr'
 
       def execute(source_pdf)
         asset_id = upload_asset(source_pdf)

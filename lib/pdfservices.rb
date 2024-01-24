@@ -14,8 +14,13 @@ require_relative 'pdfservices/asset'
 # Base
 require_relative 'pdfservices/operations/base'
 
-# Document Merge
-require_relative 'pdfservices/operations/document_merge'
+# Internal/External Operations
+require_relative 'pdfservices/operations/internal_external_operation'
+
+# Document Generation
+require_relative 'pdfservices/operations/document_generation'
+require_relative 'pdfservices/operations/document_generation/internal'
+require_relative 'pdfservices/operations/document_generation/external'
 
 # OCR
 require_relative 'pdfservices/operations/ocr'

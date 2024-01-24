@@ -8,13 +8,14 @@ module PdfServices
       TABLE_OUTPUT_FORMATS = %w[csv xlsx].freeze
       RENDITIONS_EXTRACTS = %w[tables figures].freeze
 
-      def execute(source_pdf = nil, options = {})
+      def execute(source_pdf_path = nil, options = {})
         validate_options(options)
         @download_zip = options.delete(:download_zip) || false
-        asset = upload_asset(source_pdf)
+        asset = upload_asset(source_pdf_path)
 
-        response = @api.post(OPERATION_ENDPOINT, body: extract_pdf_request_body(asset.id, options),
-                                                 headers: extract_pdf_request_headers)
+        response = @api.post(OPERATION_ENDPOINT,
+                             body: extract_pdf_request_body(asset.id, options),
+                             headers: extract_pdf_request_headers)
         handle_extract_pdf_response(response, asset)
       end
 
@@ -39,15 +40,15 @@ module PdfServices
         raise OperationError, "Extract PDF operation failed: #{response.body}" unless response.status == 201
 
         polling_url = response.headers['location']
-        poll_document_result(polling_url, asset)
+        poll_document_result polling_url, asset
       end
 
       def handle_polling_done(json_response, original_asset)
         file_key = @download_zip ? 'resource' : 'content'
         asset_id = json_response[file_key]['assetID']
-        file = Asset.new(@api).download(asset_id)
+        file = Asset.new(@api).download(asset_id).body
         super
-        file.body
+        file
       end
 
       def validate_options(options)
