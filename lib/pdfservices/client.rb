@@ -3,7 +3,7 @@
 module PdfServices
   class Client
     TOKEN_ENDPOINT = 'https://pdf-services-ue1.adobe.io/token'
-    attr_reader :client_id, :client_secret, :expires_at
+    attr_reader :expires_at
 
     def initialize(client_id, client_secret, access_token = nil)
       @client_id = client_id

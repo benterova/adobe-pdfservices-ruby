@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = 'An Adobe PDF Services Ruby SDK provides APIs for creating, combining, exporting and manipulating PDFs.'
   spec.homepage = 'https://github.com/benterova/adobe-pdfservices-ruby/blob/main/README.md'
   spec.license = 'MIT'
-  spec.required_ruby_version = '>= 3.2.2'
+  spec.required_ruby_version = '>= 3.0.0'
 
   spec.metadata['allowed_push_host'] = "TODO: Set to your gem server 'https://example.com'"
 
