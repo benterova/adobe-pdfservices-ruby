@@ -12,3 +12,13 @@
 - EXPERIMENTAL: Add support for internal and external operations (OCR, htmltopdf, documentgeneration)
 - Update tests
 - Update README
+
+## [0.1.2] - 2024-01-25
+
+- Update URL's in gemspec
+- Fix misnamed parameters in extract_pdf operation
+- Remove multiple authorization headers for pre-signed URL's
+- Remove push_host from gemspec
+- Allow client to be initialized with no secret_key if there's an access_token provided (useful for development)
+- Asset delete request is properly formed
+- Use MimeMagic to determine content-type of files

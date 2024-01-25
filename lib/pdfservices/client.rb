@@ -53,10 +53,6 @@ module PdfServices
           client_id: @client_id,
           client_secret: @client_secret
         }
-        unless response.status == 200
-          raise ClientError,
-                "Something went wrong when trying to refresh the token: #{response.body}"
-        end
       end
 
       raise "Token refresh error: #{response.status} - #{response.body}" unless response.status == 200

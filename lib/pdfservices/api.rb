@@ -37,7 +37,7 @@ module PdfServices
 
     def delete(url, headers: {})
       response = @connection.delete(url) do |req|
-        build_headers(req, headers)
+        build_request(req, headers, nil)
       end
       handle_response(response)
     end
