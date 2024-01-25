@@ -3,21 +3,24 @@
 module PdfServices
   class Client
     TOKEN_ENDPOINT = 'https://pdf-services-ue1.adobe.io/token'
+    DEFAULT_TOKEN_DURATION = 86_399
     attr_reader :expires_at
 
-    def initialize(client_id, client_secret, access_token = nil)
+    def initialize(client_id = nil, client_secret = nil, access_token = nil)
       @client_id = client_id
       @client_secret = client_secret
+      @access_token = access_token
+      @expires_at = Time.now + DEFAULT_TOKEN_DURATION
       valid_access_token? ? access_token : refresh_token
-      @expires_at = Time.now
+      validate_client
       @api = Api.new(@access_token, @client_id)
     end
 
     def method_missing(method_name, *args, &block)
       operation_class_name = "PdfServices::#{camelize(method_name.to_s)}::Operation"
-      if Object.const_defined?(operation_class_name)
-        operation_class = Object.const_get(operation_class_name)
-        operation = operation_class.new(@api)
+      if Object.const_defined? operation_class_name
+        operation_class = Object.const_get operation_class_name
+        operation = operation_class.new @api
         operation.execute(*args, &block)
       else
         super
@@ -35,6 +38,10 @@ module PdfServices
       str.split('_').map(&:capitalize).join
     end
 
+    def validate_client
+      raise 'Client ID and Client Secret are required' if (@client_id.nil? || @client_secret.nil?) && @access_token.nil?
+    end
+
     def valid_access_token?
       !@access_token.nil? && Time.now <= @expires_at
     end
@@ -46,6 +53,10 @@ module PdfServices
           client_id: @client_id,
           client_secret: @client_secret
         }
+        unless response.status == 200
+          raise ClientError,
+                "Something went wrong when trying to refresh the token: #{response.body}"
+        end
       end
 
       raise "Token refresh error: #{response.status} - #{response.body}" unless response.status == 200

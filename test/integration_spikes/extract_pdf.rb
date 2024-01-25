@@ -1,19 +1,24 @@
 # frozen_string_literal: true
 
 require 'dotenv/load'
-require_relative '../../lib/pdfservices'
-
-credentials = PdfServices::CredentialsBuilder.new
-                                             .with_client_id(ENV['PDF_SERVICES_CLIENT_ID'])
-                                             .with_client_secret(ENV['PDF_SERVICES_CLIENT_SECRET'])
-                                             .with_organization_id(ENV['PDF_SERVICES_ORGANIZATION_ID'])
-                                             .build
+require './lib/adobe-pdfservices-ruby'
+require 'fileutils'
 
 pdf = File.join(Dir.pwd, 'test', 'fixtures', 'files', 'not_yet_extracted.pdf')
-operation = PdfServices::ExtractPdf::Operation.new(credentials, pdf)
 
-result = operation.execute
+client_id = ENV['ADOBE_CLIENT_ID']
+client_secret = ENV['ADOBE_CLIENT_SECRET']
+access_token = ENV['ADOBE_ACCESS_TOKEN']
 
-puts(result.error)
+client = PdfServices::Client.new client_id, client_secret, access_token
 
-result.save_as_file('tmp/extract_pdf_result.json')
+file = client.extract_pdf(pdf, { include_styles: true })
+
+write_path = File.join Dir.pwd, 'tmp', 'extracted.json'
+FileUtils.mkdir_p(File.dirname(write_path))
+
+puts "Writing to #{write_path}"
+
+File.open(write_path, 'w') do |f|
+  f.write(file)
+end

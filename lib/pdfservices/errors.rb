@@ -10,4 +10,7 @@ module PdfServices
 
   class OperationError < Error
   end
+
+  class ClientError < Error
+  end
 end

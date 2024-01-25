@@ -3,7 +3,7 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'minitest/autorun'
 require 'webmock/minitest'
-require 'pdfservices'
+require 'adobe-pdfservices-ruby'
 
 def setup_client
   @client = PdfServices::Client.new('123someclientid', 'client_secret')

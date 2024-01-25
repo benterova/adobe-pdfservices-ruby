@@ -16,39 +16,52 @@ module PdfServices
 
     def post(url, body:, headers: {})
       response = @connection.post(url) do |req|
-        req.headers = merge_default_headers(headers)
-        req.body = body
+        build_request(req, headers, body)
       end
       handle_response(response)
     end
 
     def get(url, headers: {})
       response = @connection.get(url) do |req|
-        req.headers = merge_default_headers(headers)
+        build_request(req, headers, nil)
       end
       handle_response(response)
     end
 
     def put(url, body:, headers: {})
       response = @connection.put(url) do |req|
-        req.headers = merge_default_headers(headers)
-        req.body = body
+        build_request(req, headers, body)
       end
       handle_response(response)
     end
 
     def delete(url, headers: {})
       response = @connection.delete(url) do |req|
-        req.headers = merge_default_headers(headers)
+        build_headers(req, headers)
       end
       handle_response(response)
     end
 
     private
 
-    def merge_default_headers(headers)
-      default_headers = { 'Authorization' => "Bearer #{@access_token}", 'X-Api-Key' => @client_id }
-      default_headers.merge(headers)
+    def build_request(request, headers, body = nil)
+      request.body = transform_body(body) if body
+      request.headers = build_headers(request, headers)
+    end
+
+    def build_headers(request, headers = {})
+      default_headers = { 'X-Api-Key' => @client_id }
+
+      # Adobe only allows one authorization type, and presigned URLs already have the token in the URL
+      # so we only add the Authorization header if it's not a presigned URL
+      default_headers['Authorization'] = "Bearer #{@access_token}" if request.params['X-Amz-Credential'].nil?
+
+      default_headers = default_headers.merge(headers) unless headers.empty?
+      default_headers
+    end
+
+    def transform_body(body)
+      body.is_a?(Hash) ? body.to_json : body
     end
 
     def handle_response(response)

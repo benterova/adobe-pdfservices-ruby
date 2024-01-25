@@ -16,9 +16,12 @@ module PdfServices
       upload_uri = url['uploadUri']
       asset_id = url['assetID']
 
-      response = @api.put(upload_uri, body: File.new(file))
+      response = @api.put(upload_uri, body: File.new(file), headers: upload_headers(File.new(file)))
 
-      raise AssetError, 'Something went wrong when trying to upload the file' unless response.status == 200
+      unless response.status == 200
+        raise AssetError,
+              "Something went wrong when trying to upload the file: #{response.body.inspect}"
+      end
 
       @id = asset_id
 
@@ -44,13 +47,27 @@ module PdfServices
 
     private
 
+    def upload_headers(file)
+      {
+        'Content-Type' => MimeMagic.by_magic(file).type,
+        'Content-Length' => file.size.to_s
+      }
+    end
+
     def presigned_url(operation = :upload, media_type: 'application/pdf')
       case operation
       when :upload
-        response = @api.post(ASSETS_ENDPOINT, body: { mediaType: media_type })
+        response = @api.post(ASSETS_ENDPOINT, body: { mediaType: media_type },
+                                              headers: { 'Content-Type' => 'application/json' })
       when :download
         response = @api.get("#{ASSETS_ENDPOINT}/#{@id}")
       end
+
+      unless response.status == 200
+        raise AssetError,
+              "Something went wrong when trying to get the presigned URL: #{JSON.parse(response.body)}"
+      end
+
       JSON.parse response.body.to_s
     end
   end

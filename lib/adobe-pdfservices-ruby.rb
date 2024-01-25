@@ -4,6 +4,7 @@ require 'json'
 require 'multipart_parser/reader'
 require 'yaml'
 require 'faraday'
+require 'mimemagic'
 
 # Errors
 require_relative 'pdfservices/errors'

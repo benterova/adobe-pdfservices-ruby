@@ -26,9 +26,9 @@ module PdfServices
           assetID: asset_id,
           includeStyling: options.fetch(:include_styling, false),
           getCharBounds: options.fetch(:get_char_bounds, false),
-          renditions: options.fetch(:renditions_to_extract, RENDITIONS_EXTRACTS),
+          renditionsToExtract: options.fetch(:renditions_to_extract, RENDITIONS_EXTRACTS),
           tableOutputFormat: options.fetch(:table_output_format, TABLE_OUTPUT_FORMATS.first),
-          extractElements: options.fetch(:extract_elements, VALID_EXTRACT_ELEMENTS)
+          elementsToExtract: options.fetch(:extract_elements, VALID_EXTRACT_ELEMENTS)
         }
       end
 
