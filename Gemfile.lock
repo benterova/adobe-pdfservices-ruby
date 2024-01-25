@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    adobe-pdfservices-ruby (0.1.1)
+    adobe_pdfservices_ruby (0.1.1)
       faraday (~> 2.9)
       json (~> 2.6)
       mimemagic (~> 0.4.3)
@@ -68,7 +68,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  adobe-pdfservices-ruby!
+  adobe_pdfservices_ruby!
   dotenv (~> 2.8)
   minitest (~> 5.0)
   rake (~> 13.0)

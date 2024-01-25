@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'dotenv/load'
-require './lib/adobe-pdfservices-ruby'
+require './lib/adobe_pdfservices_ruby'
 require 'fileutils'
 
 pdf = File.join(Dir.pwd, 'test', 'fixtures', 'files', 'not_yet_extracted.pdf')

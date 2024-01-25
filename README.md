@@ -1,6 +1,6 @@
 # PDF Services for Ruby
 
-### Originally forked from [Adobe Document Services PDF Tools SDK for Ruby](https://github.com/arpc/adobe-pdfservices-ruby)
+### Originally forked from [Adobe Document Services PDF Tools SDK for Ruby](https://github.com/arpc/adobe_pdfservices_ruby)
 
 This gem provides a Ruby wrapper for the [Adobe PDF Services API](https://developer.adobe.com/document-services/docs/overview/). It allows you to perform various PDF operations, such as extracting content from PDFs, OCR, HTML to PDF, and document generation.
 
@@ -9,8 +9,9 @@ This gem provides a Ruby wrapper for the [Adobe PDF Services API](https://develo
 1. Add the gem to your gemfile:
 
 ```ruby
-gem "adobe-pdfservices-ruby"
+gem "adobe_pdfservices_ruby"
 ```
+
 2. Run `bundle install`
 
 ## Usage Example
@@ -18,7 +19,7 @@ gem "adobe-pdfservices-ruby"
 The `PdfServices::Client` class allows you to perform various PDF operations, such as extracting content from PDFs. The client supports real-time updates on the operation status and retrieves the resulting file upon completion. Below is an example of how to use the client to extract content from a PDF file:
 
 ```ruby
-require 'adobe-pdfservices-ruby'
+require 'adobe_pdfservices_ruby'
 
 # Initialize the client with your credentials
 client = PdfServices::Client.new('your_client_id', 'your_client_secret')
@@ -53,29 +54,30 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ### Currently Supported
+
 Work is in progress on getting the gem to support all of the operations available in the [Adobe PDF Services API](https://developer.adobe.com/document-services/docs/overview/). Below is a list of the operations and their current support status:
 
-* ✅ Extract PDF
-* ❗ OCR
-  * ❗ EXPERIMENTAL: Internal
-  * ❗ EXPERIMENTAL: External
-* ❗ HTML to PDF
-  * ❗ EXPERIMENTAL: Internal
-  * ❗ EXPERIMENTAL: External
-* ❗ Document Generation:
-  * ✅ Internal
-  * ❗ EXPERIMENTAL: External
+- ✅ Extract PDF
+- ❗ OCR
+  - ❗ EXPERIMENTAL: Internal
+  - ❗ EXPERIMENTAL: External
+- ❗ HTML to PDF
+  - ❗ EXPERIMENTAL: Internal
+  - ❗ EXPERIMENTAL: External
+- ❗ Document Generation:
+  - ✅ Internal
+  - ❗ EXPERIMENTAL: External
 
 ### Operation parameters
-The parameters for each method are listed in the [Adobe PDF Services API documentation](https://developer.adobe.com/document-services/docs/overview/). The parameters are passed to the methods 
-as a hash. 
+
+The parameters for each method are listed in the [Adobe PDF Services API documentation](https://developer.adobe.com/document-services/docs/overview/). The parameters are passed to the methods
+as a hash.
 
 For most operations that rely on a file as the first parameter, this can either be the path to the file or a File object.
 
-
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/benterova/adobe-pdfservices-ruby. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/benterova/adobe-pdfservices-ruby/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/benterova/adobe_pdfservices_ruby. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/benterova/adobe_pdfservices_ruby/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -83,5 +85,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Be good. [code of conduct](https://github.com/benterova/adobe-pdfservices-ruby/blob/main/CODE_OF_CONDUCT.md).
-
+Be good. [code of conduct](https://github.com/benterova/adobe_pdfservices_ruby/blob/main/CODE_OF_CONDUCT.md).
