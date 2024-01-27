@@ -5,7 +5,7 @@ module PdfServices
     class Internal < Operation
       INTERNAL_OPTIONS = %i[output_format json_data_for_merge fragments notifiers].freeze
 
-      def execute(template_path, options = {})
+      def execute(template_path, options = {}, &block)
         validate_options(options)
         asset = upload_asset(template_path)
 
@@ -13,7 +13,7 @@ module PdfServices
                              body: request_body(asset.id, options),
                              headers: request_headers)
 
-        handle_response(response, asset.id)
+        handle_response(response, asset, &block)
       end
 
       private
@@ -64,7 +64,7 @@ module PdfServices
         raise ArgumentError, "Invalid options: #{invalid_keys}" unless invalid_keys.empty?
       end
 
-      def handle_polling_done(json_response, original_asset)
+      def handle_polling_done(json_response, original_asset, &block)
         asset_id = json_response['asset']['assetID']
         file = Asset.new(@api).download(asset_id).body
         super

@@ -1,19 +1,40 @@
 # frozen_string_literal: true
 
-require "lib/pdfservices"
+require 'dotenv/load'
+require './lib/adobe_pdfservices_ruby'
+require 'fileutils'
 
-credentials = ::PdfServices::CredentialsBuilder.new
-                                               .with_client_id(ENV["PDF_SERVICES_CLIENT_ID"])
-                                               .with_client_secret(ENV["PDF_SERVICES_CLIENT_SECRET"])
-                                               .with_organization_id(ENV["PDF_SERVICES_ORGANIZATION_ID"])
-                                               .with_account_id(ENV["PDF_SERVICES_ACCOUNT_ID"])
-                                               .with_private_key(ENV["PDF_SERVICES_PRIVATE_KEY"])
-                                               .build
+ocr_pdf = File.join(Dir.pwd, 'test', 'fixtures', 'files', 'not_yet_ocr.pdf')
+client_id = ENV['ADOBE_CLIENT_ID']
+client_secret = ENV['ADOBE_CLIENT_SECRET']
+access_token = ENV['ADOBE_ACCESS_TOKEN']
+client = PdfServices::Client.new client_id, client_secret, access_token
 
-operation = ::PdfServices::Ocr::Operation.new(credentials)
+file = nil
 
-result = operation.execute("test/fixtures/files/not_yet_ocr.pdf")
+internal_options = {}
 
-puts(result.error)
+client.ocr(ocr_pdf, internal_options) do |status, result|
+  case status
+  when 'in progress'
+    puts "Status: #{status}"
+  when 'done'
+    puts "Status: #{status}"
+    file = result
+  when 'failed'
+    puts "Status: #{status}"
+    puts "Result: #{result}"
+  else
+    puts "Status: #{status}"
+    puts "Result: #{result}"
+  end
+end
 
-result.save_as_file("tmp/ocr_result.pdf")
+write_path = File.join Dir.pwd, 'tmp', 'ocr_result.pdf'
+FileUtils.mkdir_p(File.dirname(write_path))
+
+puts "Writing to #{write_path}"
+
+File.open(write_path, 'w') do |f|
+  f.write(file)
+end

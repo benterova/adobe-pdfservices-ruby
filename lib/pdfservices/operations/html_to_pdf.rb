@@ -9,15 +9,6 @@ module PdfServices
         { 'Content-Type' => 'application/json' }
       end
 
-      def handle_response(response, asset_id)
-        unless response.status == 201
-          raise "Unexpected response status from document merge endpoint: #{response.status}, asset_id: #{asset_id}"
-        end
-
-        document_url = response.headers['location']
-        poll_document_result document_url, asset_id
-      end
-
       def internal_class
         Internal
       end

@@ -1,6 +1,6 @@
 # PDF Services for Ruby
 
-### Originally forked from [Adobe Document Services PDF Tools SDK for Ruby](https://github.com/arpc/adobe_pdfservices_ruby)
+### Originally forked from [Adobe Document Services PDF Tools SDK for Ruby](https://github.com/arpc/pdfservices-ruby-sdk)
 
 This gem provides a Ruby wrapper for the [Adobe PDF Services API](https://developer.adobe.com/document-services/docs/overview/). It allows you to perform various PDF operations, such as extracting content from PDFs, OCR, HTML to PDF, and document generation.
 
@@ -58,13 +58,13 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 Work is in progress on getting the gem to support all of the operations available in the [Adobe PDF Services API](https://developer.adobe.com/document-services/docs/overview/). Below is a list of the operations and their current support status:
 
 - ✅ Extract PDF
-- ❗ OCR
-  - ❗ EXPERIMENTAL: Internal
+- ✅ OCR
+  - ✅ Internal
   - ❗ EXPERIMENTAL: External
-- ❗ HTML to PDF
-  - ❗ EXPERIMENTAL: Internal
+- ✅ HTML to PDF
+  - ✅ Internal
   - ❗ EXPERIMENTAL: External
-- ❗ Document Generation:
+- ✅ Document Generation:
   - ✅ Internal
   - ❗ EXPERIMENTAL: External
 

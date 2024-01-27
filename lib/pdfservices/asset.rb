@@ -5,14 +5,17 @@ module PdfServices
     attr_reader :id
 
     def initialize(api, id = nil)
+      # MimeMagic can't detect docx files, and will return `application/zip` so we need to add it manually
+      MimeMagic.add('application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    magic: [[0..2000, 'word/']])
       raise ArgumentError, 'Api is nil' unless api
 
       @api = api
       @id = id
     end
 
-    def upload(file, media_type: 'application/pdf')
-      url = presigned_url(media_type:)
+    def upload(file)
+      url = presigned_url(file:)
       upload_uri = url['uploadUri']
       asset_id = url['assetID']
 
@@ -39,7 +42,7 @@ module PdfServices
       @api.get(download_uri)
     end
 
-    def delete
+    def delete_asset
       raise AssetError, 'Asset ID is nil' unless @id
 
       @api.delete("#{ASSETS_ENDPOINT}/#{@id}")
@@ -54,9 +57,10 @@ module PdfServices
       }
     end
 
-    def presigned_url(operation = :upload, media_type: 'application/pdf')
+    def presigned_url(operation = :upload, file: nil)
       case operation
       when :upload
+        media_type = file ? MimeMagic.by_magic(file).type : 'application/pdf'
         response = @api.post(ASSETS_ENDPOINT, body: { mediaType: media_type },
                                               headers: { 'Content-Type' => 'application/json' })
       when :download

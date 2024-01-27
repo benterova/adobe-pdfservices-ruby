@@ -5,21 +5,21 @@ module PdfServices
     class Internal < Operation
       INTERNAL_OPTIONS = %i[ocr_lang ocr_type notifiers].freeze
 
-      def execute(html_file_path, options = {})
+      def execute(source_pdf, options = {}, &block)
         validate_options(options)
-        asset = upload_asset(html_file_path)
+        asset = upload_asset(source_pdf)
 
         response = @api.post(OPERATION_ENDPOINT,
-                             body: request_body(asset.id, options),
-                             headers: request_headers)
+                             body: request_body(asset.id, options), headers: { 'Content-Type' => 'application/json' })
 
-        handle_response(response, asset.id)
+        handle_response(response, asset, &block)
       end
 
       private
 
-      def handle_polling_done(json_response, _original_asset_id)
+      def handle_polling_done(json_response, _original_asset)
         asset_id = json_response['asset']['assetID']
+        super
         Asset.new(@api).download(asset_id).body
       end
 

@@ -3,7 +3,7 @@
 module PdfServices
   module Ocr
     class Operation < InternalExternalOperation::Operation
-      OCR_ENDPOINT = 'https://pdf-services-ue1.adobe.io/operation/ocr'
+      OPERATION_ENDPOINT = "#{BASE_ENDPOINT}ocr".freeze
       OCR_LANGS = %w[
         da-DK lt-LT sl-SI el-GR ru-RU en-US zh-HK hu-HU et-EE
         pt-BR uk-UA nb-NO pl-PL lv-LV fi-FI ja-JP es-ES bg-BG
@@ -15,6 +15,14 @@ module PdfServices
       OCR_TYPES = %w[searchable_image searchable_image_exact].freeze
 
       private
+
+      def internal_class
+        Internal
+      end
+
+      def external_class
+        External
+      end
 
       def validate_ocr_lang_option(ocr_lang)
         raise ArgumentError, "Invalid ocr_lang option: #{ocr_lang}" unless OCR_LANGS.include?(ocr_lang)

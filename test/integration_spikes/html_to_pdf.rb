@@ -4,17 +4,18 @@ require 'dotenv/load'
 require './lib/adobe_pdfservices_ruby'
 require 'fileutils'
 
-pdf = File.join(Dir.pwd, 'test', 'fixtures', 'files', 'not_yet_extracted.pdf')
-
+json = { world: 'World!' }
+html_source = File.join(Dir.pwd, 'test', 'fixtures', 'files', 'html_to_pdf_source.html')
 client_id = ENV['ADOBE_CLIENT_ID']
 client_secret = ENV['ADOBE_CLIENT_SECRET']
 access_token = ENV['ADOBE_ACCESS_TOKEN']
+client = PdfServices::Client.new client_id, client_secret, access_token
 
 file = nil
 
-client = PdfServices::Client.new client_id, client_secret, access_token
+internal_options = { json: }
 
-client.extract_pdf(pdf, { include_styles: true }) do |status, result|
+client.html_to_pdf(html_source, internal_options) do |status, result|
   case status
   when 'in progress'
     puts "Status: #{status}"
@@ -30,7 +31,7 @@ client.extract_pdf(pdf, { include_styles: true }) do |status, result|
   end
 end
 
-write_path = File.join Dir.pwd, 'tmp', 'extracted.json'
+write_path = File.join Dir.pwd, 'tmp', 'html_to_pdf.pdf'
 FileUtils.mkdir_p(File.dirname(write_path))
 
 puts "Writing to #{write_path}"

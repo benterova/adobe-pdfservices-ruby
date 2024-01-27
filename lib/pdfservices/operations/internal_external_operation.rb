@@ -1,9 +1,9 @@
 module PdfServices
   module InternalExternalOperation
     class Operation < Base::Operation
-      def execute(source_file_path, options = {})
+      def execute(source_file_path, options = {}, &block)
         operation_class = switch_on_type(options)
-        operation_class.new(@api).execute(source_file_path, options)
+        operation_class.new(@api).execute(source_file_path, options, &block)
       end
 
       private

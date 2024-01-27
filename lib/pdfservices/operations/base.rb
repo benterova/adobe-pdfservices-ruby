@@ -26,6 +26,15 @@ module PdfServices
         handle_polling_result(url, json_response, original_asset, &block)
       end
 
+      def handle_response(response, asset, &block)
+        unless response.status == 201
+          raise "Unexpected response status from operation endpoint: #{response.status}, #{response.body}"
+        end
+
+        document_url = response.headers['location']
+        poll_document_result document_url, asset, &block
+      end
+
       private
 
       def handle_polling_result(url, json_response, original_asset, &block)
@@ -64,16 +73,16 @@ module PdfServices
       end
 
       def handle_polling_done(_json_response, original_asset)
-        original_asset.delete
+        original_asset.delete_asset
       end
 
       def handle_polling_failed(json_response, original_asset)
-        original_asset.delete
+        original_asset.delete_asset
         raise PollingError, "Document extraction failed: #{json_response['error']}"
       end
 
       def handle_polling_unexpected_status(json_response, original_asset)
-        original_asset.delete
+        original_asset.delete_asset
         raise PollingError, "Unexpected status: #{json_response['status']}"
       end
     end
