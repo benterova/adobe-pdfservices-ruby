@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json'
-require 'multipart_parser/reader'
 require 'yaml'
 require 'faraday'
 require 'mimemagic'

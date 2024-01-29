@@ -23,7 +23,7 @@
 - Asset delete request is properly formed
 - Use MimeMagic to determine content-type of files
 
-## [0.1.3] - 2024-02-01
+## [0.1.3] - 2024-01-27
 
 - Fix incorrect URLs in README
 - Fix incorrect URLs in gemspec
@@ -31,3 +31,7 @@
 - Fix passed blocks not being called for most operations
 - Add support for html_to_pdf operation via spike
 - Add support for OCR operation via spike
+
+## [0.1.4] - 2024-01-29
+
+- Remove require for multipart parser
