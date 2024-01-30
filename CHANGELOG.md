@@ -43,3 +43,7 @@
 ## [0.1.6] - 2024-01-29
 
 - Re-add accidentally removed initialization of @api in base operation
+
+## [0.1.7] - 2024-01-29
+
+- Add support for uploading assets from a string or a stream

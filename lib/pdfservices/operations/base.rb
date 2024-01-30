@@ -16,7 +16,14 @@ module PdfServices
       end
 
       def upload_asset(asset)
-        asset = File.open(asset, 'rb') if asset.is_a?(String) && File.exist?(asset)
+        if asset.is_a?(String) && File.exist?(asset)
+          asset = File.open(asset, 'rb')
+        elsif asset.respond_to?(:read) && asset.respond_to?(:eof?)
+          tempfile = Tempfile.new(['blob', SecureRandom.uuid])
+          tempfile.write(asset.read(1024)) until asset.eof?
+          tempfile.rewind
+          asset = tempfile
+        end
         Asset.new(@api).upload(asset)
       end
 

@@ -4,6 +4,8 @@ require 'json'
 require 'yaml'
 require 'faraday'
 require 'mimemagic'
+require 'tempfile'
+require 'securerandom'
 
 # Errors
 require_relative 'pdfservices/errors'
