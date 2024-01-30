@@ -47,3 +47,7 @@
 ## [0.1.7] - 2024-01-29
 
 - Add support for uploading assets from a string or a stream
+
+## [0.1.8] - 2024-01-29
+
+- Flip checks between IO and paths in upload_asset method
