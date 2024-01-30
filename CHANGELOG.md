@@ -35,3 +35,7 @@
 ## [0.1.4] - 2024-01-29
 
 - Remove require for multipart parser
+
+## [0.1.5] - 2024-01-29
+
+- Refactor upload_asset method to handle both file paths and file objects
