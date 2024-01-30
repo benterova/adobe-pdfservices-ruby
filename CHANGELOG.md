@@ -39,3 +39,7 @@
 ## [0.1.5] - 2024-01-29
 
 - Refactor upload_asset method to handle both file paths and file objects
+
+## [0.1.6] - 2024-01-29
+
+- Re-add accidentally removed initialization of @api in base operation

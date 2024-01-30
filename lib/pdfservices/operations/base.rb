@@ -11,6 +11,10 @@ module PdfServices
         failed: 'failed'
       }.freeze
 
+      def initialize(api)
+        @api = api
+      end
+
       def upload_asset(asset)
         asset = File.open(asset, 'rb') if asset.is_a?(String) && File.exist?(asset)
         Asset.new(@api).upload(asset)
